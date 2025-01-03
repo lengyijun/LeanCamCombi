@@ -166,22 +166,22 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
   le_one := mul_le_one' hX.le_one hY.le_one
   iIndepFun := by
     refine ((iIndepSet_iff_meas_biInter fun i ↦ ?_).2 ?_).iIndep_comap_mem
-    refine MeasurableSet.inter ?_ ?_
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    refine fun s ↦ ?_
-    -- We abused defeq using `iIndepSet.Indep_comap`, so we fix it here
-    change μ (⋂ i ∈ s, {ω | X ω i} ∩ {ω | Y ω i}) = s.prod fun i ↦ μ ({ω | X ω i} ∩ {ω | Y ω i})
-    simp_rw [iInter_inter_distrib]
-    rw [h.meas_inter, hX.iIndepFun.meas_biInter, hY.iIndepFun.meas_biInter,
-      ← Finset.prod_mul_distrib]
-    refine Finset.prod_congr rfl fun i hi ↦ (h.meas_inter ?_ ?_).symm
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
-    sorry -- needs refactor of `Probability.Independence.Basic`
+    . refine MeasurableSet.inter ?_ ?_
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+    . refine fun s ↦ ?_
+      -- We abused defeq using `iIndepSet.Indep_comap`, so we fix it here
+      change μ (⋂ i ∈ s, {ω | X ω i} ∩ {ω | Y ω i}) = s.prod fun i ↦ μ ({ω | X ω i} ∩ {ω | Y ω i})
+      simp_rw [iInter_inter_distrib]
+      rw [h.meas_inter, hX.iIndepFun.meas_biInter, hY.iIndepFun.meas_biInter,
+        ← Finset.prod_mul_distrib]
+      refine Finset.prod_congr rfl fun i hi ↦ (h.meas_inter ?_ ?_).symm
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
+      . sorry -- needs refactor of `Probability.Independence.Basic`
   map a := sorry
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
