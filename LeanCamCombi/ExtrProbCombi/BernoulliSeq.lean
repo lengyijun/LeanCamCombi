@@ -165,6 +165,20 @@ is a sequence of independent `p * q`-Bernoulli random variables. -/
 protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω ∩ Y ω) (p * q) μ where
   le_one := mul_le_one' hX.le_one hY.le_one
   iIndepFun := by
+    rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
+    intros S sets h_sets
+    have : ∀ i ∈ S,  ((fun ω ↦ i ∈ X ω ∩ Y ω) ⁻¹' sets i) ⊆ ((fun ω => i ∈ X ω) ⁻¹' sets i) := by
+      intros i hi
+      specialize h_sets i hi
+      rw [Set.preimage_subset_iff]
+      intros a ha
+      rw [Set.mem_preimage]
+      sorry
+    -- rw [IndepFun_iff] at h
+    -- have g := hX.iIndepFun
+    -- rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at g
+    all_goals sorry
+  /-
     refine ((iIndepSet_iff_meas_biInter fun i ↦ ?_).2 ?_).iIndep_comap_mem
     . refine MeasurableSet.inter ?_ ?_
       . sorry -- needs refactor of `Probability.Independence.Basic`
@@ -182,6 +196,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       . sorry -- needs refactor of `Probability.Independence.Basic`
       . sorry -- needs refactor of `Probability.Independence.Basic`
       . sorry -- needs refactor of `Probability.Independence.Basic`
+  -/
   map a := sorry
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
