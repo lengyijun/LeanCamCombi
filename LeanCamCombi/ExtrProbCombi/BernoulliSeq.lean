@@ -167,6 +167,17 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
   iIndepFun := by
     rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
     intros S sets h_sets
+    by_cases g: ∀ i ∈ S, @MeasurableSet Ω (MeasurableSpace.comap (fun ω ↦ i ∈ X ω) inferInstance) ((fun ω ↦ i ∈ X ω ∩ Y ω) ⁻¹' sets i)
+    . apply iIndepFun.meas_biInter
+      exact hX.iIndepFun
+      exact g
+    . simp at g
+      obtain ⟨j, hj, g⟩ := g
+      specialize h_sets j hj
+      exfalso
+      apply g
+      sorry
+    /-
     have : ∀ i ∈ S,  ((fun ω ↦ i ∈ X ω ∩ Y ω) ⁻¹' sets i) ⊆ ((fun ω => i ∈ X ω) ⁻¹' sets i) := by
       intros i hi
       specialize h_sets i hi
@@ -174,6 +185,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       intros a ha
       rw [Set.mem_preimage]
       sorry
+    -/
     -- rw [IndepFun_iff] at h
     -- have g := hX.iIndepFun
     -- rw [iIndepFun_iff_measure_inter_preimage_eq_mul] at g
@@ -197,7 +209,53 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       . sorry -- needs refactor of `Probability.Independence.Basic`
       . sorry -- needs refactor of `Probability.Independence.Basic`
   -/
-  map a := sorry
+  map a := by
+    ext sp msp
+    simp only [Measure.map]
+    split_ifs with hae
+    . unfold Measure.mapₗ
+      split_ifs with hf
+      . simp
+        let ssa : Set (Set α) := {s | a ∈ s}
+        let sx := (fun ω => X ω) ⁻¹' ssa
+        let sy := (fun ω => Y ω) ⁻¹' ssa
+        let sxy := (fun ω => X ω ∩ Y ω) ⁻¹' ssa
+        have : μ sx = p := by
+          unfold sx ssa
+          simp
+          apply hX.meas_apply
+        have : μ sy = q := by
+          unfold sy ssa
+          simp
+          apply hY.meas_apply
+        have : μ sxy = p * q := by
+          unfold sxy ssa
+          simp
+          rw [Set.setOf_and]
+          sorry
+        all_goals sorry
+      . exfalso
+        apply hf
+        apply AEMeasurable.measurable_mk
+    . exfalso
+      apply hae
+      obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
+      obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
+      use (fun x => XX x /\ YY x)
+      constructor
+      . apply Measurable.setOf at m_XX
+        apply Measurable.setOf at m_YY
+        have h := MeasurableSet.inter m_XX m_YY
+        rw [← measurable_mem] at h
+        exact h
+      . unfold Filter.EventuallyEq Filter.Eventually at gx gy
+        unfold Filter.EventuallyEq Filter.Eventually
+        simp at gx gy
+        simp
+        have h := Filter.inter_sets _ gx gy
+        apply Filter.sets_of_superset _ h ?_
+        rw [← Set.setOf_and, Set.setOf_subset_setOf]
+        tauto
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
 variables is a sequence of independent `p + q - p * q`-Bernoulli random variables. -/
