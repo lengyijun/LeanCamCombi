@@ -156,9 +156,28 @@ lemma compl : IsBernoulliSeq (fun ω ↦ (X ω)ᶜ) (1 - p) μ where
     refine (this.aemeasurable.map_map_of_aemeasurable (hX.aemeasurable _)).symm.trans ?_
     rw [hX.map, PMF.toMeasure_map _ _ this, PMF.map_not_bernoulli']
 
-variable [IsProbabilityMeasure (μ : Measure Ω)]
-
 include hY
+
+protected lemma aemeasurable_inter(a : α) : AEMeasurable (fun ω ↦ a ∈ X ω ∩ Y ω) μ := by
+  obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
+  obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
+  use (fun x => XX x /\ YY x)
+  constructor
+  . apply Measurable.setOf at m_XX
+    apply Measurable.setOf at m_YY
+    have h := MeasurableSet.inter m_XX m_YY
+    rw [← measurable_mem] at h
+    exact h
+  . unfold Filter.EventuallyEq Filter.Eventually at gx gy
+    unfold Filter.EventuallyEq Filter.Eventually
+    simp at gx gy
+    simp
+    have h := Filter.inter_sets _ gx gy
+    apply Filter.sets_of_superset _ h ?_
+    rw [← Set.setOf_and, Set.setOf_subset_setOf]
+    tauto
+
+-- variable [IsProbabilityMeasure (μ : Measure Ω)]
 
 /-- The intersection of a sequence of independent `p`-Bernoulli and `q`-Bernoulli random variables
 is a sequence of independent `p * q`-Bernoulli random variables. -/
@@ -252,23 +271,8 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         apply AEMeasurable.measurable_mk
     . exfalso
       apply hae
-      obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
-      obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
-      use (fun x => XX x /\ YY x)
-      constructor
-      . apply Measurable.setOf at m_XX
-        apply Measurable.setOf at m_YY
-        have h := MeasurableSet.inter m_XX m_YY
-        rw [← measurable_mem] at h
-        exact h
-      . unfold Filter.EventuallyEq Filter.Eventually at gx gy
-        unfold Filter.EventuallyEq Filter.Eventually
-        simp at gx gy
-        simp
-        have h := Filter.inter_sets _ gx gy
-        apply Filter.sets_of_superset _ h ?_
-        rw [← Set.setOf_and, Set.setOf_subset_setOf]
-        tauto
+      apply hX.aemeasurable_inter hY
+
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
 variables is a sequence of independent `p + q - p * q`-Bernoulli random variables. -/
