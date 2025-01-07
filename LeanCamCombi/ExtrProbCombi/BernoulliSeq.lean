@@ -77,6 +77,23 @@ protected lemma identDistrib (a j : α) : IdentDistrib (fun ω ↦ a ∈ X ω) (
   . simp [hX.map]
   . simp
 
+/-
+lemma IsProbabilityMeasure_μ (non_empty : ∃ a : α, True) : IsProbabilityMeasure μ := ⟨
+by  have h : ∀ (a : α), μ {ω | a ∈ X ω} + μ {ω | a ∉ X ω} = 1:= by
+      intros a
+      rw [hX.meas_apply, hX.meas_apply']
+      have h : p + (1 - p) = 1 := by
+        rw [← (add_tsub_assoc_of_le hX.le_one) p]
+        rw [← tsub_add_eq_add_tsub]
+        all_goals norm_num
+      assumption_mod_cast
+    obtain ⟨a, _⟩ := non_empty
+    specialize h a
+    -- {ω | a ∈ X ω} maybe not measurable
+    sorry
+⟩
+-/
+
 protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : Finset α) :
     μ {ω | X ω = s} = p ^ #s * (1 - p) ^ (card α - #s) := by
   classical
