@@ -71,6 +71,12 @@ protected lemma identDistrib (a j : α) : IdentDistrib (fun ω ↦ a ∈ X ω) (
   · simp [hX.map]
   · simp
 
+@[simp] lemma meas_apply' (a : α) : μ {ω | a ∉ X ω} = 1-p := by
+  rw [(_ : {ω | a ∉ X ω} = (fun ω ↦ a ∈ X ω) ⁻¹' {False}),
+    ← Measure.map_apply_of_aemeasurable (hX.aemeasurable a) MeasurableSpace.measurableSet_top]
+  . simp [hX.map]
+  . simp
+
 protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : Finset α) :
     μ {ω | X ω = s} = (p : ℝ≥0∞) ^ #s * (1 - p : ℝ≥0∞) ^ (card α - #s) := by
   classical
