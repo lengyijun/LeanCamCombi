@@ -220,6 +220,10 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         let sx := (fun ω => X ω) ⁻¹' ssa
         let sy := (fun ω => Y ω) ⁻¹' ssa
         let sxy := (fun ω => X ω ∩ Y ω) ⁻¹' ssa
+        unfold Set.indicator
+        split_ifs <;> simp
+        rw [IndepFun_iff] at h
+        -- rw [ProbabilityTheory.indepFun_iff_indepSet_preimage] at h
         have : μ sx = p := by
           unfold sx ssa
           simp
@@ -232,7 +236,16 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
           unfold sxy ssa
           simp
           rw [Set.setOf_and]
-          sorry
+          rw [h]
+          rw [hX.meas_apply, hY.meas_apply]
+          . have h : @MeasurableSet Ω (MeasurableSpace.comap X instMeasurableSpace) sx := by
+              unfold sx ssa
+              apply MeasurableSet.preimage
+              pick_goal 3
+              exact ⊤
+              all_goals sorry
+            exact h
+          all_goals sorry
         all_goals sorry
       . exfalso
         apply hf
