@@ -206,6 +206,8 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
   iIndepFun := by
     rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
     intros S sets h_sets
+    -- rw [Measure.map_apply_of_aemeasurable (hX.aemeasurable_inter hY)]
+    /-
     by_cases g: ∀ i ∈ S, @MeasurableSet Ω (MeasurableSpace.comap (fun ω ↦ i ∈ X ω) inferInstance) ((fun ω ↦ i ∈ X ω ∩ Y ω) ⁻¹' sets i)
     . apply iIndepFun.meas_biInter
       exact hX.iIndepFun
@@ -216,6 +218,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       exfalso
       apply g
       sorry
+    -/
     /-
     have : ∀ i ∈ S,  ((fun ω ↦ i ∈ X ω ∩ Y ω) ⁻¹' sets i) ⊆ ((fun ω => i ∈ X ω) ⁻¹' sets i) := by
       intros i hi
@@ -273,6 +276,25 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       all_goals sorry
     have : IndepFun XX YY μ := ProbabilityTheory.IndepFun.ae_eq (by assumption) gx gy
       -/
+    have : IndepSet {a | XX a} {a | YY a} μ := by
+      rw [ProbabilityTheory.IndepSet_iff_Indep]
+      rw [ProbabilityTheory.Indep_iff]
+      intros t1 t2 ht1 ht2
+      rw [measurableSet_generateFrom_singleton_iff] at ht1 ht2
+      casesm* _ ∨ _
+      all_goals subst t1
+      all_goals subst t2
+      any_goals simp
+      any_goals rw [Set.inter_setOf_eq_sep]
+      any_goals simp
+      . apply measure_congr at this
+        apply measure_congr at gx
+        apply measure_congr at gy
+        unfold setOf
+        rw [← this, ← gx, ← gy]
+        sorry
+      all_goals sorry
+
     have : IndepFun XX YY μ := by
       rw [ProbabilityTheory.indepFun_iff_indepSet_preimage]
       any_goals assumption
@@ -304,7 +326,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
             use AEMeasurable.mk (fun ω ↦ a ∈ X ω ∩ Y ω) hae
           obtain ⟨XY, this⟩ := this
           rw [← this]
-          simp [preimage]
+          -- rw [ProbabilityTheory.IdentDistrib.measure_preimage_eq (ProbabilityTheory.IdentDistrib.refl ?_)]
           -- have : XY =ᶠ[ae μ] fun x ↦ XX x ∧ YY x := by sorry
           have h3 : XY =ᵐ[μ] (fun x => XX x /\ YY x) := by
             apply Filter.EventuallyEq.trans
@@ -313,10 +335,41 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
             apply Filter.EventuallyEq.symm
             subst XY
             apply AEMeasurable.ae_eq_mk
+          simp [preimage]
+          apply measure_congr at h3
+          unfold setOf
+          rw [h3]
+          /-
           apply Filter.EventuallyEq.eventually at h3
           unfold Filter.Eventually at h3
-          simp at h3
           rw [mem_ae_iff] at h3
+          -/
+          /-
+          rw [IndepFun_iff] at h
+          -- rw [ProbabilityTheory.indepFun_iff_indepSet_preimage] at h
+          have : μ sx = p := by
+            unfold sx ssa
+            simp
+            apply hX.meas_apply
+          have : μ sy = q := by
+            unfold sy ssa
+            simp
+            apply hY.meas_apply
+          have : μ sxy = p * q := by
+            unfold sxy ssa
+            simp
+            rw [Set.setOf_and]
+            rw [h]
+            rw [hX.meas_apply, hY.meas_apply]
+            . have h : @MeasurableSet Ω (MeasurableSpace.comap X instMeasurableSpace) sx := by
+                unfold sx ssa
+                apply MeasurableSet.preimage
+                pick_goal 3
+                exact ⊤
+                all_goals sorry
+              exact h
+            all_goals sorry
+          -/
           all_goals sorry
         unfold Set.indicator
         split_ifs <;> simp
@@ -347,33 +400,6 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
           subst sp
           rw [preimage_empty]
           simp
-        /-
-        rw [IndepFun_iff] at h
-        -- rw [ProbabilityTheory.indepFun_iff_indepSet_preimage] at h
-        have : μ sx = p := by
-          unfold sx ssa
-          simp
-          apply hX.meas_apply
-        have : μ sy = q := by
-          unfold sy ssa
-          simp
-          apply hY.meas_apply
-        have : μ sxy = p * q := by
-          unfold sxy ssa
-          simp
-          rw [Set.setOf_and]
-          rw [h]
-          rw [hX.meas_apply, hY.meas_apply]
-          . have h : @MeasurableSet Ω (MeasurableSpace.comap X instMeasurableSpace) sx := by
-              unfold sx ssa
-              apply MeasurableSet.preimage
-              pick_goal 3
-              exact ⊤
-              all_goals sorry
-            exact h
-          all_goals sorry
-        all_goals sorry
-        -/
       . exfalso
         apply hf
         apply AEMeasurable.measurable_mk
