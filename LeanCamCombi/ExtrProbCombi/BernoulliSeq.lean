@@ -252,6 +252,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       . sorry -- needs refactor of `Probability.Independence.Basic`
   -/
   map a := by
+    let ssa : Set (Set α) := {s | a ∈ s}
     obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
     obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
     have : Measurable fun x ↦ XX x ∧ YY x := by
@@ -292,7 +293,11 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         apply measure_congr at gy
         unfold setOf
         rw [← this, ← gx, ← gy]
-        sorry
+        apply ProbabilityTheory.IndepFun.measure_inter_preimage_eq_mul h ssa ssa
+        all_goals sorry
+        -- . apply MeasurableSpace.measurableSet_top
+        -- . apply MeasurableSpace.measurableSet_top
+        -- rw [Measurable.setOf]
       all_goals sorry
 
     have : IndepFun XX YY μ := by
@@ -317,7 +322,6 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
     . unfold Measure.mapₗ
       split_ifs with hf
       . simp
-        let ssa : Set (Set α) := {s | a ∈ s}
         let sx := (fun ω => X ω) ⁻¹' ssa
         let sy := (fun ω => Y ω) ⁻¹' ssa
         let sxy := (fun ω => X ω ∩ Y ω) ⁻¹' ssa
