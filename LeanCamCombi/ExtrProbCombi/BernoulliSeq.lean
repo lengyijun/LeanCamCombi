@@ -176,6 +176,7 @@ lemma compl : IsBernoulliSeq (fun ω ↦ (X ω)ᶜ) (1 - p) μ where
 
 include hY
 
+/-
 protected lemma aemeasurable_inter(a : α) : AEMeasurable (fun ω ↦ a ∈ X ω ∩ Y ω) μ := by
   obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
   obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
@@ -194,6 +195,7 @@ protected lemma aemeasurable_inter(a : α) : AEMeasurable (fun ω ↦ a ∈ X ω
     apply Filter.sets_of_superset _ h ?_
     rw [← Set.setOf_and, Set.setOf_subset_setOf]
     tauto
+-/
 
 variable [IsProbabilityMeasure (μ : Measure Ω)]
 
@@ -247,6 +249,46 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       . sorry -- needs refactor of `Probability.Independence.Basic`
   -/
   map a := by
+    obtain ⟨XX, m_XX, gx⟩:= hX.aemeasurable a
+    obtain ⟨YY, m_YY, gy⟩:= hY.aemeasurable a
+    have : Measurable fun x ↦ XX x ∧ YY x := by
+      apply Measurable.setOf at m_XX
+      apply Measurable.setOf at m_YY
+      have h := MeasurableSet.inter m_XX m_YY
+      rw [← measurable_mem] at h
+      exact h
+    have : (fun ω ↦ a ∈ X ω ∩ Y ω) =ᶠ[ae μ] fun x ↦ XX x ∧ YY x := by
+      unfold Filter.EventuallyEq Filter.Eventually at gx gy
+      unfold Filter.EventuallyEq Filter.Eventually
+      simp at gx gy
+      simp
+      have h := Filter.inter_sets _ gx gy
+      apply Filter.sets_of_superset _ h ?_
+      rw [← Set.setOf_and, Set.setOf_subset_setOf]
+      tauto
+      /-
+    have : IndepFun (fun ω ↦ a ∈ X ω) (fun ω ↦ a ∈ Y ω) μ := by
+      rw [ProbabilityTheory.indepFun_iff_indepSet_preimage]
+      -- unfold IndepFun Kernel.IndepFun
+      all_goals sorry
+    have : IndepFun XX YY μ := ProbabilityTheory.IndepFun.ae_eq (by assumption) gx gy
+      -/
+    have : IndepFun XX YY μ := by
+      rw [ProbabilityTheory.indepFun_iff_indepSet_preimage]
+      any_goals assumption
+      intros s t hs ht
+      have hs := subset_bool_iff_eq' s
+      have ht := subset_bool_iff_eq' t
+      -- rw [ProbabilityTheory.IndepSet_iff]
+      casesm* _ ∨ _
+      all_goals subst s
+      all_goals subst t
+      any_goals rw [← univ_eq_true_false]
+      any_goals simp
+      any_goals apply ProbabilityTheory.indepSet_empty_left
+      any_goals apply ProbabilityTheory.indepSet_empty_right
+      all_goals sorry
+
     ext sp msp
     simp only [Measure.map]
     split_ifs with hae
@@ -258,8 +300,24 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         let sy := (fun ω => Y ω) ⁻¹' ssa
         let sxy := (fun ω => X ω ∩ Y ω) ⁻¹' ssa
         have g : μ (AEMeasurable.mk (fun ω ↦ a ∈ X ω ∩ Y ω) hae ⁻¹' {True}) = p*q := by
+          have : ∃ XY, XY = AEMeasurable.mk (fun ω ↦ a ∈ X ω ∩ Y ω) hae := by
+            use AEMeasurable.mk (fun ω ↦ a ∈ X ω ∩ Y ω) hae
+          obtain ⟨XY, this⟩ := this
+          rw [← this]
           simp [preimage]
-          sorry
+          -- have : XY =ᶠ[ae μ] fun x ↦ XX x ∧ YY x := by sorry
+          have h3 : XY =ᵐ[μ] (fun x => XX x /\ YY x) := by
+            apply Filter.EventuallyEq.trans
+            pick_goal 2
+            assumption
+            apply Filter.EventuallyEq.symm
+            subst XY
+            apply AEMeasurable.ae_eq_mk
+          apply Filter.EventuallyEq.eventually at h3
+          unfold Filter.Eventually at h3
+          simp at h3
+          rw [mem_ae_iff] at h3
+          all_goals sorry
         unfold Set.indicator
         split_ifs <;> simp
         . have : sp = {True, False} := by
@@ -321,7 +379,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         apply AEMeasurable.measurable_mk
     . exfalso
       apply hae
-      apply hX.aemeasurable_inter hY
+      use (fun x => XX x /\ YY x)
 
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
