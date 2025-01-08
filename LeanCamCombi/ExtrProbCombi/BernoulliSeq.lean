@@ -194,7 +194,7 @@ protected lemma aemeasurable_inter(a : α) : AEMeasurable (fun ω ↦ a ∈ X ω
     rw [← Set.setOf_and, Set.setOf_subset_setOf]
     tauto
 
--- variable [IsProbabilityMeasure (μ : Measure Ω)]
+variable [IsProbabilityMeasure (μ : Measure Ω)]
 
 /-- The intersection of a sequence of independent `p`-Bernoulli and `q`-Bernoulli random variables
 is a sequence of independent `p * q`-Bernoulli random variables. -/
@@ -256,8 +256,39 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         let sx := (fun ω => X ω) ⁻¹' ssa
         let sy := (fun ω => Y ω) ⁻¹' ssa
         let sxy := (fun ω => X ω ∩ Y ω) ⁻¹' ssa
+        have g : μ (AEMeasurable.mk (fun ω ↦ a ∈ X ω ∩ Y ω) hae ⁻¹' {True}) = p*q := by
+          simp [preimage]
+          sorry
         unfold Set.indicator
         split_ifs <;> simp
+        . have : sp = {True, False} := by
+            apply Set.eq_of_subset_of_subset <;> intros x hx <;> by_cases x <;> simp_all
+          subst sp
+          rw [← univ_eq_true_false, Set.preimage_univ]
+          simp
+          norm_cast
+          rw [← (add_tsub_assoc_of_le (mul_le_one' hX.le_one hY.le_one))]
+          rw [← tsub_add_eq_add_tsub]
+          all_goals norm_num
+        . have : sp = {True} := by
+            apply Set.eq_of_subset_of_subset <;> intros x hx <;> by_cases x <;> simp_all
+          subst sp
+          exact g
+        . have : sp = {False} := by
+            apply Set.eq_of_subset_of_subset <;> intros x hx <;> by_cases x <;> simp_all
+          subst sp
+          have h : False = ¬ True := by simp
+          rw [h, ← Prop.compl_singleton True, Set.preimage_compl, ← g, MeasureTheory.prob_compl_eq_one_sub]
+          apply AEMeasurable.measurable_mk
+          apply MeasurableSpace.measurableSet_top
+        . have : sp = ∅ := by
+            apply Set.eq_of_subset_of_subset <;> intros x hx
+            . by_cases x <;> simp_all
+            . simp_all
+          subst sp
+          rw [preimage_empty]
+          simp
+        /-
         rw [IndepFun_iff] at h
         -- rw [ProbabilityTheory.indepFun_iff_indepSet_preimage] at h
         have : μ sx = p := by
@@ -283,6 +314,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
             exact h
           all_goals sorry
         all_goals sorry
+        -/
       . exfalso
         apply hf
         apply AEMeasurable.measurable_mk
