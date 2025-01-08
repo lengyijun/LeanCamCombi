@@ -198,10 +198,12 @@ protected lemma aemeasurable_inter(a : α) : AEMeasurable (fun ω ↦ a ∈ X ω
 -/
 
 variable [IsProbabilityMeasure (μ : Measure Ω)]
+variable (h : @IndepFun _ _ _ _ ⊤ ⊤ X Y μ)
+include h
 
 /-- The intersection of a sequence of independent `p`-Bernoulli and `q`-Bernoulli random variables
 is a sequence of independent `p * q`-Bernoulli random variables. -/
-protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω ∩ Y ω) (p * q) μ where
+protected lemma inter : IsBernoulliSeq (fun ω ↦ X ω ∩ Y ω) (p * q) μ where
   le_one := mul_le_one' hX.le_one hY.le_one
   iIndepFun := by
     rw [iIndepFun_iff_measure_inter_preimage_eq_mul]
@@ -293,10 +295,10 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
         unfold setOf
         rw [← this, ← gx, ← gy]
         apply ProbabilityTheory.IndepFun.measure_inter_preimage_eq_mul h ssa ssa
-        all_goals sorry
-        -- . apply MeasurableSpace.measurableSet_top
-        -- . apply MeasurableSpace.measurableSet_top
-        -- rw [Measurable.setOf]
+        -- unfold instMeasurableSpace
+        -- unfold inferInstance
+        . apply MeasurableSpace.measurableSet_top
+        . apply MeasurableSpace.measurableSet_top
       all_goals sorry
 
     have : IndepFun XX YY μ := by
@@ -413,7 +415,7 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
 
 /-- The union of a sequence of independent `p`-Bernoulli random variables and `q`-Bernoulli random
 variables is a sequence of independent `p + q - p * q`-Bernoulli random variables. -/
-protected lemma union (h : IndepFun X Y μ) :
+protected lemma union :
     IsBernoulliSeq (fun ω ↦ X ω ∪ Y ω) (p + q - p * q) μ := by
   convert (hX.compl.inter hY.compl _).compl using 1
   · simp [compl_inter]
@@ -421,8 +423,10 @@ protected lemma union (h : IndepFun X Y μ) :
       add_tsub_assoc_of_le (mul_le_of_le_one_left' hX.le_one)]
     · exact (add_le_add_left (mul_le_of_le_one_right' hY.le_one) _).trans_eq
         (add_tsub_cancel_of_le hX.le_one)
-  · rwa [IndepFun_iff, MeasurableSpace.comap_compl measurable_compl,
-      MeasurableSpace.comap_compl measurable_compl, ← IndepFun_iff]
+  . rw [@IndepFun_iff _ _  _ _ ⊤ ⊤]
+    rw [@MeasurableSpace.comap_compl _ _ ⊤ _ (fun _ _ => MeasurableSpace.measurableSet_top) X]
+    rw [@MeasurableSpace.comap_compl _ _ ⊤ _ (fun _ _ => MeasurableSpace.measurableSet_top) Y]
+    rwa [← @IndepFun_iff _ _  _ _ ⊤ ⊤]
 
 end IsBernoulliSeq
 end ProbabilityTheory
