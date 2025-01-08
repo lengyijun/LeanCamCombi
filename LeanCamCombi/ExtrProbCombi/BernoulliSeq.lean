@@ -6,6 +6,7 @@ Authors: Yaël Dillies, Kexing Ying
 import Mathlib.Probability.IdentDistrib
 import Mathlib.Probability.Independence.Basic
 import LeanCamCombi.Mathlib.Probability.ProbabilityMassFunction.Constructions
+import LeanCamCombi.Mathlib.Data.Set.Basic
 
 /-!
 # Sequences of iid Bernoulli random variables
@@ -338,29 +339,3 @@ protected lemma union (h : IndepFun X Y μ) :
 
 end IsBernoulliSeq
 end ProbabilityTheory
-
-theorem subset_bool_iff_eq (s : Set Prop) : s ⊆ {True, False} ↔ s = ∅ \/ s = {True} \/ s = {False} \/ s = {True, False} := by
-constructor <;> intros h
-. by_cases True ∈ s <;> by_cases False ∈ s
-  . have : {True, False} ⊆ s := by  intros x hx
-                                    have g : x = True \/ x = False := by simp_all
-                                    cases g <;> subst x <;> simp_all
-    right; right; right
-    apply Set.eq_of_subset_of_subset <;> assumption
-  . right; left
-    apply Set.eq_of_subset_of_subset <;> intros x hx
-    . by_cases x <;> simp_all
-    . simp_all
-  . right; right; left
-    apply Set.eq_of_subset_of_subset <;> intros x hx
-    . by_cases x <;> simp_all
-    . simp_all
-  . left
-    apply Set.eq_of_subset_of_subset <;> intros x hx
-    . by_cases x <;> simp_all
-    . simp_all
-. match h with
-  | Or.inl h => subst s; simp
-  | Or.inr (Or.inl h) => subst s; simp
-  | Or.inr (Or.inr (Or.inl h)) => subst s; simp
-  | Or.inr (Or.inr (Or.inr h)) => subst s; simp
