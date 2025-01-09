@@ -271,11 +271,10 @@ protected lemma inter (h : IndepFun X Y μ) : IsBernoulliSeq (fun ω ↦ X ω �
       rw [← Set.setOf_and, Set.setOf_subset_setOf]
       tauto
       /-
-    have : IndepFun (fun ω ↦ a ∈ X ω) (fun ω ↦ a ∈ Y ω) μ := by
+    have gg : IndepFun (fun ω ↦ a ∈ X ω) (fun ω ↦ a ∈ Y ω) μ := by
       rw [ProbabilityTheory.indepFun_iff_indepSet_preimage]
-      -- unfold IndepFun Kernel.IndepFun
+      -- impossible to prove
       all_goals sorry
-    have : IndepFun XX YY μ := ProbabilityTheory.IndepFun.ae_eq (by assumption) gx gy
       -/
     have : IndepSet {a | XX a} {a | YY a} μ := by
       rw [ProbabilityTheory.IndepSet_iff_Indep]
