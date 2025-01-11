@@ -72,7 +72,7 @@ protected lemma identDistrib (a j : α) : IdentDistrib (fun ω ↦ a ∈ X ω) (
   · simp
 
 protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : Finset α) :
-    μ {ω | {a | a ∈ X ω} = s} = (p : ℝ≥0∞) ^ #s * (1 - p : ℝ≥0∞) ^ (card α - #s) := by
+    μ {ω | X ω = s} = (p : ℝ≥0∞) ^ #s * (1 - p : ℝ≥0∞) ^ (card α - #s) := by
   classical
   simp_rw [Set.ext_iff, setOf_forall]
   rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
