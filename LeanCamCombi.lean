@@ -5,6 +5,7 @@ import LeanCamCombi.Corners.CombiDegen
 import LeanCamCombi.ExtrProbCombi.BernoulliSeq
 import LeanCamCombi.ExtrProbCombi.BinomialRandomGraph
 import LeanCamCombi.ExtrProbCombi.BollobasContainment
+import LeanCamCombi.ExtrProbCombi.Chromatic
 import LeanCamCombi.ExtrProbCombi.Connectivity
 import LeanCamCombi.ExtrProbCombi.Containment
 import LeanCamCombi.ExtrProbCombi.GiantComponent
