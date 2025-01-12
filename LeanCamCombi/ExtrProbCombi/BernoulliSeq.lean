@@ -96,6 +96,54 @@ protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : 
   · simp only [mem_setOf_eq, Finset.mem_coe, iff_false, *]
     exact ⟨{False}, trivial, by simp⟩
 
+protected lemma meas_subset [IsProbabilityMeasure μ] [Fintype α] (s : Finset α) :
+    μ {ω | ∀ x ∈ s, x ∈ X ω} = (p : ℝ≥0∞) ^ #s := by
+classical
+simp_rw [setOf_forall]
+rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
+  Finset.prod_eq_pow_card, Finset.card_compl]
+pick_goal 4
+· rintro a hi
+  simp [hi, mem_setOf_eq, Finset.mem_coe, iff_true, hX.meas_apply]
+  rfl
+pick_goal 2
+· rintro a hi
+  rw [Finset.mem_compl] at hi
+  simp [hi, ← compl_setOf, prob_compl_eq_one_sub₀, mem_setOf_eq, Finset.mem_coe,
+    iff_false, hX.nullMeasurableSet, hX.meas_apply]
+  rfl
+. simp
+. rintro a
+  by_cases hi : a ∈ s
+  · simp only [mem_setOf_eq, Finset.mem_coe, iff_true, *]
+    exact ⟨{True}, trivial, by simp⟩
+  · simp only [mem_setOf_eq, Finset.mem_coe, iff_false, *]
+    exact ⟨univ, trivial, by simp⟩
+
+protected lemma meas_ne_subset [IsProbabilityMeasure μ] [Fintype α] (s : Finset α) :
+    μ {ω | ∀ x ∈ s, x ∉ X ω} = (1-p : ℝ≥0∞) ^ #s := by
+classical
+simp_rw [setOf_forall]
+rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
+  Finset.prod_eq_pow_card, Finset.card_compl]
+pick_goal 4
+· rintro a hi
+  simp [hi, mem_setOf_eq, Finset.mem_coe, iff_true, hX.meas_apply']
+  rfl
+pick_goal 2
+· rintro a hi
+  rw [Finset.mem_compl] at hi
+  simp [hi, ← compl_setOf, prob_compl_eq_one_sub₀, mem_setOf_eq, Finset.mem_coe,
+    iff_false, hX.nullMeasurableSet, hX.meas_apply]
+  rfl
+. simp
+. rintro a
+  by_cases hi : a ∈ s
+  · simp only [mem_setOf_eq, Finset.mem_coe, iff_true, *]
+    exact ⟨{False}, trivial, by simp⟩
+  · simp only [mem_setOf_eq, Finset.mem_coe, iff_false, *]
+    exact ⟨univ, trivial, by simp⟩
+
 /-- The complement of a sequence of independent `p`-Bernoulli random variables is a sequence of
 independent `1 - p`-Bernoulli random variables. -/
 lemma compl : IsBernoulliSeq (fun ω ↦ (X ω)ᶜ) (1 - p) μ where
