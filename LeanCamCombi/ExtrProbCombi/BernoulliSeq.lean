@@ -78,7 +78,7 @@ protected lemma identDistrib (a j : α) : IdentDistrib (fun ω ↦ a ∈ X ω) (
   . simp
 
 protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : Finset α) :
-    μ {ω | X ω = s} = (p : ℝ≥0∞) ^ #s * (1 - p : ℝ≥0∞) ^ (card α - #s) := by
+    μ {ω | X ω = s} = p ^ #s * (1 - p) ^ (card α - #s) := by
   classical
   simp_rw [Set.ext_iff, setOf_forall]
   rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
@@ -97,7 +97,7 @@ protected lemma meas [IsProbabilityMeasure (μ : Measure Ω)] [Fintype α] (s : 
     exact ⟨{False}, trivial, by simp⟩
 
 protected lemma meas_subset [IsProbabilityMeasure μ] [Fintype α] (s : Finset α) :
-    μ {ω | ∀ x ∈ s, x ∈ X ω} = (p : ℝ≥0∞) ^ #s := by
+    μ {ω | ∀ x ∈ s, x ∈ X ω} = p ^ #s := by
 classical
 simp_rw [setOf_forall]
 rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
@@ -121,7 +121,7 @@ pick_goal 2
     exact ⟨univ, trivial, by simp⟩
 
 protected lemma meas_ne_subset [IsProbabilityMeasure μ] [Fintype α] (s : Finset α) :
-    μ {ω | ∀ x ∈ s, x ∉ X ω} = (1-p : ℝ≥0∞) ^ #s := by
+    μ {ω | ∀ x ∈ s, x ∉ X ω} = (1-p) ^ #s := by
 classical
 simp_rw [setOf_forall]
 rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
