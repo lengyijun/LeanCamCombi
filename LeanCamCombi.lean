@@ -7,6 +7,7 @@ import LeanCamCombi.DiscreteDeriv
 import LeanCamCombi.ExtrProbCombi.Basic
 import LeanCamCombi.ExtrProbCombi.BernoulliSeq
 import LeanCamCombi.ExtrProbCombi.BollobasContainment
+import LeanCamCombi.ExtrProbCombi.Chromatic
 import LeanCamCombi.ExtrProbCombi.Connectivity
 import LeanCamCombi.ExtrProbCombi.Containment
 import LeanCamCombi.ExtrProbCombi.GiantComponent
