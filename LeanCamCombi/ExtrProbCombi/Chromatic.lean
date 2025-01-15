@@ -15,8 +15,10 @@ namespace ErdosRenyi
 
 include hG
 
+-- two proofs
 instance inter_fintype {s : Finset (Sym2 α)}: Fintype ↑({e: Sym2 α | ¬e.IsDiag} ↓∩ ↑s) :=
-Fintype.ofFinset {e : ↑{e: Sym2 α | ¬e.IsDiag} | (e : Sym2 α) ∈ s} (by simp)
+@Subtype.fintype _ _ (by simp; intros a; apply Finset.decidableMem) (Subtype.fintype _)
+-- Fintype.ofFinset {e : ↑{e: Sym2 α | ¬e.IsDiag} | (e : Sym2 α) ∈ s} (by simp)
 
 def f := fun (x:  ↑{e: Sym2 α | ¬e.IsDiag}) => (x : Sym2 α)
 
@@ -37,16 +39,14 @@ theorem independent_set_prob (independent_set : Finset α) : μ {ω | ∀ x ∈ 
 rw [hG.meas_ne_subset]
 apply congr <;> try rfl
 simp
-rw [← @Finset.card_image_of_injective _ _ f]
+rw [← @Finset.card_image_of_injective _ _ subtypeCoe.coe]
+-- have : ∀ e, f e = ↑ e := by sorry
 
-. rw [← Finset.filter_image]
+. -- rw [← Finset.filter_image]
   all_goals sorry
-. unfold Function.Injective f
-  simp
+. apply Subtype.coe_injective
 
--- ⊢ #({e | ¬e.IsDiag} ↓∩ ↑independent_set.sym2).toFinset = (#independent_set).choose 2
 
--- rw [← @Finset.card_image_of_injective _ _ (fun x => (x : Sym2 α)) _ (Finset.filter (fun e ↦ ∀ a ∈ ↑e, a ∈ independent_set) Finset.univ) ?_]
 
 -- rw [Finset.card_sym2]
 
