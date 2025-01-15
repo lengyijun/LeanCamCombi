@@ -1,6 +1,8 @@
 import LeanCamCombi.ExtrProbCombi.BernoulliSeq
 import LeanCamCombi.ExtrProbCombi.BinomialRandomGraph
 
+-- set_option pp.all true
+
 /-!
 Verify the second example in https://en.wikipedia.org/wiki/Probabilistic_method
 -/
@@ -22,7 +24,8 @@ instance inter_fintype {s : Finset (Sym2 α)}: Fintype ↑({e: Sym2 α | ¬e.IsD
 -- Fintype.ofFinset {e : ↑{e: Sym2 α | ¬e.IsDiag} | (e : Sym2 α) ∈ s} (by simp)
 -/
 
-def f := fun (x:  ↑{e: Sym2 α | ¬e.IsDiag}) => (x : Sym2 α)
+def f := @Subtype.val (Sym2 α) (fun x => ¬ x.IsDiag)
+-- def f := fun (x:  ↑{e: Sym2 α | ¬e.IsDiag}) => (x : Sym2 α)
 
 -- def foo : Finset (Sym2 α) -> Set (Sym2 α) := fun x => x
 
@@ -40,11 +43,57 @@ theorem independent_set_prob (independent_set : Finset α) : μ {ω | ∀ (x: �
 rw [hG.meas_ne_subset]
 apply congr <;> try rfl
 simp [Finset.subtype]
-rw [← @Finset.card_image_of_injective _ _ subtypeCoe.coe]
--- have : ∀ e, f e = ↑ e := by sorry
 
-. -- rw [← Finset.filter_image]
+
+-- rw [Finset.card_subtype]
+
+let p := fun (e: Sym2 α) => ∀ a ∈ e, a ∈ independent_set
+
+have h : (fun (e: {e: Sym2 α // ¬e.IsDiag}) ↦ ∀ a ∈ @Subtype.val (Sym2 α) (fun x => ¬ x.IsDiag) e, a ∈ independent_set) = (fun e => p (f e)):= by
+  ext
+  unfold p f
+  simp
+
+/-
+have g : DecidablePred fun e: {e: Sym2 α // ¬e.IsDiag} => p (Subtype.val e) := by
+  unfold p
+  unfold DecidablePred
+  intros b
+  obtain ⟨b, d⟩ := b
+  simp
+  -- have : ∃ x y, s(x, y) = b := by simp
+  -- rw [Sym2.mem_iff_mem]
+  -- unfold Sym2.Mem
   all_goals sorry
+-/
+
+rw [← @Finset.card_image_of_injective _ _ f]
+
+have decidable_p : DecidablePred p := by
+  unfold p
+  unfold DecidablePred
+  intros b
+  simp_all
+  have h := @Sym2.exists α (fun x => x = b)
+  simp at h
+  -- cases h with hx hy
+  -- obtain ⟨z, x⟩ := h
+  -- obtain ⟨z, x, y⟩ := h
+  -- obtain ⟨z, ⟨x, y⟩⟩ := h
+  -- obtain ⟨⟨x, y⟩, z⟩ := h
+  all_goals sorry
+have := @Finset.filter_image _ _ _ f Finset.univ p decidable_p
+simp at this
+unfold p f at this
+unfold f
+simp_all
+
+rw [← this]
+
+unfold Finset.univ Fintype.elems Subtype.fintype Fintype.subtype
+simp
+
+. all_goals sorry
 . apply Subtype.coe_injective
 
 
