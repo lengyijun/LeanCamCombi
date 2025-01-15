@@ -15,10 +15,12 @@ namespace ErdosRenyi
 
 include hG
 
+/-
 -- two proofs
 instance inter_fintype {s : Finset (Sym2 α)}: Fintype ↑({e: Sym2 α | ¬e.IsDiag} ↓∩ ↑s) :=
 @Subtype.fintype _ _ (by simp; intros a; apply Finset.decidableMem) (Subtype.fintype _)
 -- Fintype.ofFinset {e : ↑{e: Sym2 α | ¬e.IsDiag} | (e : Sym2 α) ∈ s} (by simp)
+-/
 
 def f := fun (x:  ↑{e: Sym2 α | ¬e.IsDiag}) => (x : Sym2 α)
 
@@ -34,11 +36,10 @@ def f := fun (x:  ↑{e: Sym2 α | ¬e.IsDiag}) => (x : Sym2 α)
 
 -- A graph with an independent set
 -- wrong
-theorem independent_set_prob (independent_set : Finset α) : μ {ω | ∀ x ∈ ({e : Sym2 α | ¬ e.IsDiag} ↓∩ independent_set.sym2).toFinset, x ∉ ({e : Sym2 α | ¬ e.IsDiag} ↓∩ (G ω).edgeSet) } = (1-p)^(Nat.choose #independent_set 2) := by
-
+theorem independent_set_prob (independent_set : Finset α) : μ {ω | ∀ (x: ↑{e : Sym2 α | ¬ e.IsDiag}), x ∈ {e : ↑{e : Sym2 α | ¬ e.IsDiag} | (e : Sym2 α) ∈ independent_set.sym2}.toFinset → x ∉ ({e : Sym2 α | ¬ e.IsDiag} ↓∩ (G ω).edgeSet) } = (1-p)^(Nat.choose #independent_set 2) := by
 rw [hG.meas_ne_subset]
 apply congr <;> try rfl
-simp
+simp [Finset.subtype]
 rw [← @Finset.card_image_of_injective _ _ subtypeCoe.coe]
 -- have : ∀ e, f e = ↑ e := by sorry
 
