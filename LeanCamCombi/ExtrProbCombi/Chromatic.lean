@@ -7,9 +7,15 @@ import LeanCamCombi.ExtrProbCombi.BinomialRandomGraph
 Verify the second example in https://en.wikipedia.org/wiki/Probabilistic_method
 -/
 
-open MeasureTheory ProbabilityTheory IsBernoulliSeq
 open scoped Finset ENNReal NNReal Set.Notation
 
+/-
+theorem univ_image_val {α: Type*} [DecidableEq α] [Fintype α] (p : α → Prop) [DecidablePred p]: Finset.image Subtype.val (Finset.univ : Finset (Subtype p)) = {x : α | p x} := by apply Set.eq_of_subset_of_subset <;> simp
+-/
+
+theorem univ_image_val {α: Type*} [DecidableEq α] [Fintype α] (p : α → Prop) [DecidablePred p]: Finset.image Subtype.val (Finset.univ : Finset (Subtype p)) = ({x : α | p x} : Finset α) := by apply Finset.Subset.antisymm <;> intros x <;> simp
+
+open MeasureTheory ProbabilityTheory IsBernoulliSeq
 variable {α Ω : Type*} [DecidableEq α] [Fintype α] [MeasurableSpace Ω] {G : Ω → SimpleGraph α} (μ : Measure Ω) [IsProbabilityMeasure μ] {p : ℝ≥0} (hG : IsBinomialRandomGraph G p μ)
 -- {H : SimpleGraph α} [DecidableRel H.Adj]
 
@@ -87,12 +93,8 @@ simp at this
 unfold p f at this
 unfold f
 simp_all
-
 rw [← this]
-
-unfold Finset.univ Fintype.elems Subtype.fintype Fintype.subtype
-simp
-
+rw [univ_image_val]
 . all_goals sorry
 . apply Subtype.coe_injective
 
