@@ -71,5 +71,38 @@ rw [← @Finset.card_image_of_injective _ _ f]
     simp_all
 . apply Subtype.coe_injective
 
+theorem cassava (y : ℕ): μ {ω | ∃ (s : Finset α), (s.card = y) /\ independent_set (G ω) s} ≤ (Nat.choose (Fintype.card α) y) * (1-p)^(Nat.choose y 2):= by
+let ss : Finset (Finset α) := {vs | #vs = y}
+let k : Set Ω := ⋃ i ∈ ss, {ω | independent_set (G ω) i}
+apply LE.le.trans
+. have h : {ω | ∃ (s : Finset α), (s.card = y) /\ independent_set (G ω) s} ⊆ k := by
+    intros w hw
+    obtain ⟨s, _, _⟩ := hw
+    unfold k ss
+    simp_all
+    use s
+  apply μ.mono at h
+  exact h
+. apply LE.le.trans
+  . unfold k
+    apply @MeasureTheory.measure_biUnion_finset_le _ _ _ _ _ μ ss (fun i => {ω | independent_set (G ω) i})
+  . let f i := μ {ω | independent_set (G ω) i}
+    let g (i : Finset α) := (1-p)^(Nat.choose y 2)
+    have h : ∀ i ∈ ss, f i ≤ g i := by
+      unfold f g
+      intros s _
+      unfold ss at *
+      simp_all
+      rw [independent_set_prob]
+      any_goals assumption
+      subst y
+      norm_num
+    apply Finset.sum_le_sum at h
+    unfold g at h
+    simp at h
+    have g := @Fintype.card_finset_len α _ y
+    rw [Fintype.card_subtype] at g
+    rw [g] at h
+    assumption
 
 end ErdosRenyi
