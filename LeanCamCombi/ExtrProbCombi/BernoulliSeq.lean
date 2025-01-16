@@ -121,8 +121,16 @@ pick_goal 2
     exact ⟨univ, trivial, by simp⟩
 
 protected lemma meas_ne_subset [IsProbabilityMeasure μ] [Fintype α] (s : Finset α) :
-    μ {ω | ∀ x ∈ s, x ∉ X ω} = (1-p) ^ #s := by
+    μ {ω | Disjoint (s: Set _) (X ω)} = (1-p) ^ #s := by
 classical
+have h : {ω | Disjoint (s: Set _) (X ω)} =  {ω | ∀ x ∈ s, x ∉ X ω} := by
+  apply Set.eq_of_subset_of_subset <;> intros w hw <;> simp_all
+  . intros a h g
+    specialize @hw {a} (by simp; assumption) (by simp; assumption)
+    tauto
+  . intros z _ _
+    by_cases z = ∅ <;> tauto
+rw [h]
 simp_rw [setOf_forall]
 rw [hX.iIndepFun.meas_iInter, ← s.prod_mul_prod_compl, Finset.prod_eq_pow_card,
   Finset.prod_eq_pow_card, Finset.card_compl]
