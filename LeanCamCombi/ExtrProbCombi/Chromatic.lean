@@ -1,5 +1,6 @@
 import LeanCamCombi.ExtrProbCombi.BernoulliSeq
 import LeanCamCombi.ExtrProbCombi.BinomialRandomGraph
+import LeanCamCombi.Mathlib.Data.Finset.Image
 
 -- set_option pp.all true
 
@@ -8,13 +9,6 @@ Verify the second example in https://en.wikipedia.org/wiki/Probabilistic_method
 -/
 
 open scoped Finset ENNReal NNReal Set.Notation
-
-/-
-theorem univ_image_val {α: Type*} [DecidableEq α] [Fintype α] (p : α → Prop) [DecidablePred p]: Finset.image Subtype.val (Finset.univ : Finset (Subtype p)) = {x : α | p x} := by apply Set.eq_of_subset_of_subset <;> simp
--/
-
-theorem univ_image_val {α: Type*} [DecidableEq α] [Fintype α] (p : α → Prop) [DecidablePred p]: Finset.image Subtype.val (Finset.univ : Finset (Subtype p)) = ({x : α | p x} : Finset α) := by apply Finset.Subset.antisymm <;> intros x <;> simp
-
 open MeasureTheory ProbabilityTheory IsBernoulliSeq
 variable {α Ω : Type*} [DecidableEq α] [Fintype α] [MeasurableSpace Ω] {G : Ω → SimpleGraph α} (μ : Measure Ω) [IsProbabilityMeasure μ] {p : ℝ≥0} (hG : IsBinomialRandomGraph G p μ)
 -- {H : SimpleGraph α} [DecidableRel H.Adj]
@@ -76,18 +70,8 @@ have g : DecidablePred fun e: {e: Sym2 α // ¬e.IsDiag} => p (Subtype.val e) :=
 rw [← @Finset.card_image_of_injective _ _ f]
 
 have decidable_p : DecidablePred p := by
-  unfold p
-  unfold DecidablePred
   intros b
-  simp_all
-  have h := @Sym2.exists α (fun x => x = b)
-  simp at h
-  -- cases h with hx hy
-  -- obtain ⟨z, x⟩ := h
-  -- obtain ⟨z, x, y⟩ := h
-  -- obtain ⟨z, ⟨x, y⟩⟩ := h
-  -- obtain ⟨⟨x, y⟩, z⟩ := h
-  all_goals sorry
+  apply Fintype.decidableForallFintype
 have := @Finset.filter_image _ _ _ f Finset.univ p decidable_p
 simp at this
 unfold p f at this
@@ -95,12 +79,28 @@ unfold f
 simp_all
 rw [← this]
 rw [univ_image_val]
-. all_goals sorry
+-- . let s : Finset (Sym2 α) := {e | ∀ a ∈ e, a ∈ independent_set}
+. rw [Finset.filter_comm]
+  -- rw [Sym2.card_subtype_not_diag]
+  let s : Finset (Sym2 α) := independent_set.sym2
+  let t : Finset (Sym2 α) := {e | e.IsDiag}
+  have g : #(s ∩ t) = #independent_set := by
+    unfold s t
+    rw [Finset.inter_comm, Finset.filter_inter]
+    simp
+    sorry
+  have h := Finset.card_inter_add_card_sdiff s t
+  rw [Finset.card_sym2] at h
+  rw [g] at h
+  have g : s \ t = (Finset.filter (fun x ↦ ¬x.IsDiag) (Finset.filter (fun e ↦ ∀ a ∈ e, a ∈ independent_set) Finset.univ)) := by
+    unfold s t
+    apply Finset.Subset.antisymm <;> intro x <;> simp
+  rw [← g]
+  have g : #(s \ t) = (#independent_set + 1).choose 2 - #independent_set := by omega
+  unfold Nat.choose at g
+  simp at g
+  rw [g]
 . apply Subtype.coe_injective
-
-
-
--- rw [Finset.card_sym2]
 
 
 end ErdosRenyi
