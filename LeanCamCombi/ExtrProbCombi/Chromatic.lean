@@ -24,23 +24,26 @@ instance inter_fintype {s : Finset (Sym2 α)}: Fintype ↑({e: Sym2 α | ¬e.IsD
 -- Fintype.ofFinset {e : ↑{e: Sym2 α | ¬e.IsDiag} | (e : Sym2 α) ∈ s} (by simp)
 -/
 
+def independent_set: SimpleGraph α → Finset α → Prop := fun g s => Disjoint (({e : ↑{e : Sym2 α | ¬ e.IsDiag} | (e : Sym2 α) ∈ s.sym2} : Finset _) : Set _) ({e : Sym2 α | ¬ e.IsDiag} ↓∩ g.edgeSet)
+
 def f := @Subtype.val (Sym2 α) (fun x => ¬ x.IsDiag)
 
 -- A graph with an independent set
-theorem independent_set_prob (independent_set : Finset α) : μ {ω | Disjoint (({e : ↑{e : Sym2 α | ¬ e.IsDiag} | (e : Sym2 α) ∈ independent_set.sym2} : Finset _) : Set _) ({e : Sym2 α | ¬ e.IsDiag} ↓∩ (G ω).edgeSet) } = (1-p)^(Nat.choose #independent_set 2) := by
+theorem independent_set_prob (s: Finset α) : μ {ω | independent_set (G ω) s} = (1-p)^(Nat.choose #s 2) := by
+unfold independent_set
 rw [hG.meas_ne_subset]
 apply congr <;> try rfl
 simp [Finset.subtype]
 rw [← @Finset.card_image_of_injective _ _ f]
 
-. let p := fun (e: Sym2 α) => ∀ a ∈ e, a ∈ independent_set
+. let p := fun (e: Sym2 α) => ∀ a ∈ e, a ∈ s
   have decidable_p : DecidablePred p := by
     intros b
     apply Fintype.decidableForallFintype
   have h := @Finset.filter_image _ _ _ f Finset.univ p decidable_p
   simp at h
   unfold p f at h
-  have : (fun (e: {e: Sym2 α // ¬e.IsDiag}) ↦ ∀ a ∈ @Subtype.val (Sym2 α) (fun x => ¬ x.IsDiag) e, a ∈ independent_set) = (fun e => p (f e)):= by
+  have : (fun (e: {e: Sym2 α // ¬e.IsDiag}) ↦ ∀ a ∈ @Subtype.val (Sym2 α) (fun x => ¬ x.IsDiag) e, a ∈ s) = (fun e => p (f e)):= by
     ext
     unfold p f
     simp
